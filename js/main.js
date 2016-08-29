@@ -11,9 +11,9 @@ catch(e) {
 
 // initialize values that you might want to fiddle with
 var freqBinNumber       = Math.pow(2,15),
-	startingFrequency   = 440/8,
-	numKeys             = 12*10,
-	numPoints           = 100,
+	startingFrequency   = 440/6,
+	numKeys             = 12*7,
+	numPoints           = 500,
 	threshold           = 0; // 0=> no thrsholding otherwise between 0 and 1
 	
 
@@ -26,9 +26,14 @@ var	h          = $(window).height(),
 	MainAnalyser,
 	series,
 	source,
-	svg,
-	dbToAbsract;
+	dbToAbsract,
+	canvas = document.getElementById('myCanvas');
+    canvasContext = canvas.getContext('2d');
+
 	gainNode.gain.value = .8
+
+	canvasContext.canvas.width  = window.innerWidth;
+  canvasContext.canvas.height = window.innerHeight;
 
 // if the frequency range extends beyong the limit this cuts it off
 for (var i = numKeys - 1; i >= 0; i--) {
@@ -45,9 +50,11 @@ function genAudioSource()
 	
 		// Pick any one of these songs
 		audio.src = 'C-major.mp3';
-		audio.src = "Tobu - Roots [NCS Release].mp3"
+		// audio.src = "Tobu - Roots [NCS Release].mp3"
 		audio.src = 'book1-prelude01.mp3';
-		audio.src = '01 - The Calculation.m4a'
+		// audio.src = "bach-bwv895-breemer.mp3"
+		// audio.src = "Chapter 22 - The Deathly Hallows.mp3"
+		// audio.src = '01 - The Calculation.m4a'
 
 		audio.autoplay = true;
 		audio.playbackRate =1;
@@ -59,14 +66,6 @@ function genAudioSource()
 	anim()
 }
 
-
-
-
-
-var line = d3.line()
-	.curve(d3.curveCatmullRom.alpha(0.5))
-    .x(function(d,i) { return w/2-i*w/2/numPoints; })
-    .y(function(d,i) { return d.y; });
  
 
 
@@ -82,30 +81,11 @@ function initialize(){
 for (var i = 0; i < numKeys; i++) {
 	keyFrequency = Math.pow(2,Math.log2(startingFrequency)+i/12)
 	data = []
-	for (var j = numPoints - 1; j >= 0; j--) {data.unshift({x:1000000,y:i*(h-20)/numKeys+10})}
+	for (var j = numPoints - 1; j >= 0; j--) {data.unshift({x:1000000,y:(numKeys-i)*(h-20)/numKeys+10})}
 	dataSets.push(data)
 }
 
 
-
-
-	// VISUALS
-	svg = d3.select("#a").append("svg:svg")
-	.attr("width", w)
-	.attr("height",  h)
-	.style('background-color','#EEE');
-
-	series = svg.selectAll(".series")
-    .data(dataSets)
-    .enter()
-    .append("g")
-    .attr("class", "series");
-
-series.append("path")
-	.attr("d", function (d) {return line(d);})
-	.attr("stroke",function(d,i) {return(colors[i%12]);})
-    .attr("stroke-width",2)
-    .attr('fill',function(d,i) {return(colors[i%12]);})
 
  dbToAbsract = d3.scaleLinear()
 	.range([0,1])
@@ -122,10 +102,27 @@ gainNode.connect(context.destination)
 function anim(){
 	requestAnimationFrame(anim)
 	updateData(dataSets)
-	series.select("path")
-		.attr("d", function (d) {return line(d);})
-		.attr("stroke-width",function(d,i){if (d.y-(i*(h-20)/numKeys+10)==0) {return(0)} return(2)});
-		// .attr("stroke",function(d,i) {if(d.y>i*(h-20)/numKeys+10) {return('none')};  return(colors[i%12]);});
+
+	canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+	
+	
+
+	for (var i = numKeys - 1; i >= 0; i--) {
+		data = dataSets[i]
+		canvasContext.beginPath();
+		canvasContext.moveTo(0,(numKeys-i)*(h-20)/numKeys+10);
+		for (var j = data.length - 1; j >= 0; j--) {
+			
+			canvasContext.lineTo(w/2-j*w/2/numPoints,data[j].y);
+		}
+		canvasContext.closePath();
+		canvasContext.fillStyle = colors[i%12];
+		canvasContext.strokeStyle = colors[i%12];
+		canvasContext.fill()
+	canvasContext.lineWidth = 1;
+	canvasContext.stroke();
+	}
+	
 }
 
 
@@ -158,13 +155,15 @@ function updateData(dataSets) {
 			if (mean>threshold) {mean=1}
 		}
 
+		xLoc = w/2-i*w/2/numPoints
+
+
 
 		data.pop()
-		data.pop()
 		data.shift()
-		data.unshift({x:0,y:(mean)*h/numKeys*1+i*(h-20)/numKeys+10})
-		data.unshift({x:0,y:i*(h-20)/numKeys+10})
-		data.push({x:0,y:i*(h-20)/numKeys+10})
+		data.unshift({x:xLoc,y:(mean)*h/numKeys+(numKeys-i)*(h-20)/numKeys+10})
+		data.unshift({x:xLoc,y:(numKeys-i)*(h-20)/numKeys+10})
+
 	}
 }
 
