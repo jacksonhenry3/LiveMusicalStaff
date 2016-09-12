@@ -11,10 +11,11 @@ catch(e) {
 
 // initialize values that you might want to fiddle with
 var freqBinNumber       = Math.pow(2,15),
-	startingFrequency   = 440/6,
-	numKeys             = 12*7,
+	N= 3,//Number of octaves below a440 to start
+	startingFrequency   = 440/Math.pow(2,N),
+	numKeys             = 12*(2*N+1),
 	numPoints           = 500,
-	threshold           = 0; // 0=> no thrsholding otherwise between 0 and 1
+	threshold           = 0 ; // 0=> no thrsholding otherwise between 0 and 1
 	
 
 // initialize values that you WON'T want to fiddle with
@@ -30,15 +31,15 @@ var	h          = $(window).height(),
 	canvas = document.getElementById('myCanvas');
     canvasContext = canvas.getContext('2d');
 
-	gainNode.gain.value = .8
+	gainNode.gain.value = .6
 
 	canvasContext.canvas.width  = window.innerWidth;
   canvasContext.canvas.height = window.innerHeight;
 
 // if the frequency range extends beyong the limit this cuts it off
-for (var i = numKeys - 1; i >= 0; i--) {
-	if (keyFrequency = Math.pow(2,Math.log2(startingFrequency)+i/12)>24000){numKeys = i}
-}
+// for (var i = numKeys - 1; i >= 0; i--) {
+// 	if (keyFrequency = Math.pow(2,Math.log2(startingFrequency)+i/12)>24000){numKeys = i}
+// }
 
 
 // if the source is to be an audio file
@@ -50,23 +51,25 @@ function genAudioSource()
 	
 		// Pick any one of these songs
 		audio.src = 'C-major.mp3';
-		// audio.src = "Tobu - Roots [NCS Release].mp3"
-		audio.src = 'book1-prelude01.mp3';
-		// audio.src = "bach-bwv895-breemer.mp3"
-		// audio.src = "Chapter 22 - The Deathly Hallows.mp3"
+		audio.src = "Tobu - Roots [NCS Release].mp3"
+		// audio.src = 'book1-prelude01.mp3';
+		audio.src = "bach-bwv895-breemer.mp3"
+		audio.src = "Chapter 22 - The Deathly Hallows.mp3"
+		// audio.src = "09 - Dance Anthem of the 80's.m4a"
 		// audio.src = '01 - The Calculation.m4a'
+		// audio.src = "Silver Lining.mp3"
+		// audio.src = "09 Wild Horse.mp3"
 
 		audio.autoplay = true;
 		audio.playbackRate =1;
 
 	// Our <audio> element will be the audio source.
-	source = context.createMediaElementSource(audio);
+	// source = context.createMediaElementSource(audio);
 
 	initialize()
 	anim()
 }
 
- 
 
 
 function initialize(){
@@ -89,7 +92,7 @@ for (var i = 0; i < numKeys; i++) {
 
  dbToAbsract = d3.scaleLinear()
 	.range([0,1])
-	.domain([-70,-20])
+	.domain([-70,-30])
 	.clamp(true);
 
 
@@ -152,7 +155,7 @@ function updateData(dataSets) {
 		if (threshold != 0)
 		{
 			if (mean<threshold) {mean=0}
-			if (mean>threshold) {mean=1}
+			// if (mean>threshold) {mean=1}
 		}
 
 		xLoc = w/2-i*w/2/numPoints
@@ -167,4 +170,4 @@ function updateData(dataSets) {
 	}
 }
 
-genAudioSource()
+// genAudioSource()
