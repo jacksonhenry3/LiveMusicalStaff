@@ -98,7 +98,7 @@ for (var i = 0; i < numKeys; i++) {
 
 
 source.connect(gainNode);	
-gainNode.connect(context.destination)
+// gainNode.connect(context.destination)
 }
 
 
