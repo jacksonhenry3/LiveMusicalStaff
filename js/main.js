@@ -11,10 +11,10 @@ catch(e) {
 
 // initialize values that you might want to fiddle with
 var freqBinNumber       = Math.pow(2,15),
-	N= 3,//Number of octaves below a440 to start
+	N= 1//Number of octaves below a440 to start
 	startingFrequency   = 440/Math.pow(2,N),
 	numKeys             = 12*(2*N+1),
-	numPoints           = 500,
+	numPoints           = 50,
 	threshold           = 0 ; // 0=> no thrsholding otherwise between 0 and 1
 	
 
@@ -51,10 +51,10 @@ function genAudioSource()
 	
 		// Pick any one of these songs
 		audio.src = 'C-major.mp3';
-		audio.src = "Tobu - Roots [NCS Release].mp3"
-		// audio.src = 'book1-prelude01.mp3';
-		audio.src = "bach-bwv895-breemer.mp3"
-		audio.src = "Chapter 22 - The Deathly Hallows.mp3"
+		// audio.src = "Tobu - Roots [NCS Release].mp3"
+		audio.src = 'book1-prelude01.mp3';
+		// audio.src = "bach-bwv895-breemer.mp3"
+		// audio.src = "Chapter 22 - The Deathly Hallows.mp3"
 		// audio.src = "09 - Dance Anthem of the 80's.m4a"
 		// audio.src = '01 - The Calculation.m4a'
 		// audio.src = "Silver Lining.mp3"
@@ -64,12 +64,34 @@ function genAudioSource()
 		audio.playbackRate =1;
 
 	// Our <audio> element will be the audio source.
-	// source = context.createMediaElementSource(audio);
+	source = context.createMediaElementSource(audio);
 
 	initialize()
 	anim()
 }
+var frequencyNodes
 
+function genOscilators(){
+	frequencyNodes = {}
+	for (var i = 0; i < numKeys; i++) {
+		keyFrequency = Math.pow(2,Math.log2(startingFrequency)+i/12)
+		console.log(keyFrequency)
+		oscilator   = context.createOscillator()
+		
+		oscilator.frequency.value = keyFrequency
+		// oscilator.type = 'sine'
+		oscilator.start()
+
+		gain   = context.createGain()
+		gain.gain.value = 0
+
+		oscilator.connect(gain)
+		gain.connect(context.destination)
+
+		frequencyNodes[keyFrequency] = gain
+}
+}
+genOscilators()
 
 
 function initialize(){
@@ -98,7 +120,7 @@ for (var i = 0; i < numKeys; i++) {
 
 
 source.connect(gainNode);	
-// gainNode.connect(context.destination)
+gainNode.connect(context.destination)
 }
 
 
@@ -141,7 +163,9 @@ function getFreqDat(freq)
 
 function updateData(dataSets) {
 	MainAnalyser.getFloatFrequencyData(MainBuffer);
-	
+	maxmean = 0
+	maxkey = keyFrequency
+	index = 0
 	for (var i = numKeys - 1; i >= 0; i--) {
 		keyFrequency = Math.pow(2,Math.log2(startingFrequency)+i/12)
 		data = dataSets[i]
@@ -150,7 +174,12 @@ function updateData(dataSets) {
 
 			
 		mean = dbToAbsract(getFreqDat(keyFrequency));
-
+		if (mean>maxmean){
+			maxkey = keyFrequency
+			maxmean = mean
+		index = i}
+			
+			// console.log(index)
 
 		if (threshold != 0)
 		{
@@ -160,14 +189,23 @@ function updateData(dataSets) {
 
 		xLoc = w/2-i*w/2/numPoints
 
-
-
+		frequencyNodes[keyFrequency].gain.value = 0
+		mean = 0
 		data.pop()
 		data.shift()
 		data.unshift({x:xLoc,y:(mean)*h/numKeys+(numKeys-i)*(h-20)/numKeys+10})
 		data.unshift({x:xLoc,y:(numKeys-i)*(h-20)/numKeys+10})
 
 	}
+	// console.log(maxkey)
+	frequencyNodes[maxkey].gain.value = maxmean
+	data = dataSets[index]
+	data.shift()
+	data.shift()
+	data.pop()
+	data.shift()
+	data.unshift({x:xLoc,y:(maxmean)*h/numKeys+(numKeys-index)*(h-20)/numKeys+10})
+	data.unshift({x:xLoc,y:(numKeys-index)*(h-20)/numKeys+10})
 }
 
-// genAudioSource()
+genAudioSource()
