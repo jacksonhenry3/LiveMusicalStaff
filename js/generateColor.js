@@ -12,7 +12,7 @@ function makeColorGradient(frequency1, frequency2, frequency3,
        var red = Math.floor(Math.sin(frequency1*i + phase1) * width + center);
        var grn = Math.floor(Math.sin(frequency2*i + phase2) * width + center);
        var blu = Math.floor(Math.sin(frequency3*i + phase3) * width + center);
-       colors.push('rgba('+red.toString()+','+grn.toString()+','+blu.toString()+',1)')
+       colors.push('rgba('+red.toString()+','+grn.toString()+','+blu.toString()+',.5)')
     }
     return(colors)
   }
