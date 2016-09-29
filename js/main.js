@@ -52,7 +52,7 @@ function genAudioSource()
 		// Pick any one of these songs
 		audio.src = 'C-major.mp3';
 		// audio.src = "Tobu - Roots [NCS Release].mp3"
-		audio.src = 'book1-prelude01.mp3';
+		// audio.src = 'book1-prelude01.mp3';
 		// audio.src = "bach-bwv895-breemer.mp3"
 		// audio.src = "Chapter 22 - The Deathly Hallows.mp3"
 		// audio.src = "09 - Dance Anthem of the 80's.m4a"
@@ -174,10 +174,10 @@ function updateData(dataSets) {
 
 			
 		mean = dbToAbsract(getFreqDat(keyFrequency));
-		if (mean>maxmean){
-			maxkey = keyFrequency
-			maxmean = mean
-		index = i}
+		// if (mean>maxmean){
+		// 	maxkey = keyFrequency
+		// 	maxmean = mean
+		// index = i}
 			
 			// console.log(index)
 
@@ -189,8 +189,8 @@ function updateData(dataSets) {
 
 		xLoc = w/2-i*w/2/numPoints
 
-		frequencyNodes[keyFrequency].gain.value = 0
-		mean = 0
+		// frequencyNodes[keyFrequency].gain.value = 0
+		// mean = 0
 		data.pop()
 		data.shift()
 		data.unshift({x:xLoc,y:(mean)*h/numKeys+(numKeys-i)*(h-20)/numKeys+10})
@@ -198,14 +198,14 @@ function updateData(dataSets) {
 
 	}
 	// console.log(maxkey)
-	frequencyNodes[maxkey].gain.value = maxmean
-	data = dataSets[index]
-	data.shift()
-	data.shift()
-	data.pop()
-	data.shift()
-	data.unshift({x:xLoc,y:(maxmean)*h/numKeys+(numKeys-index)*(h-20)/numKeys+10})
-	data.unshift({x:xLoc,y:(numKeys-index)*(h-20)/numKeys+10})
+	// frequencyNodes[maxkey].gain.value = maxmean
+	// data = dataSets[index]
+	// data.shift()
+	// data.shift()
+	// data.pop()
+	// data.shift()
+	// data.unshift({x:xLoc,y:(maxmean)*h/numKeys+(numKeys-index)*(h-20)/numKeys+10})
+	// data.unshift({x:xLoc,y:(numKeys-index)*(h-20)/numKeys+10})
 }
 
 genAudioSource()
